@@ -41,6 +41,9 @@ public class Distances {
         this.distances = distances;
     }
     
+    public ArrayList<Location> getLocations(){
+        return (ArrayList<Location>)this.locations.clone();
+    }
     
     public double getDistance(Location orig, Location dest){
         int oInd = this.locations.indexOf(orig);

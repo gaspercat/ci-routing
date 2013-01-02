@@ -17,6 +17,12 @@ public class Tour {
     Location depot;
     ArrayList<Location> waypoints;
     
+    public Tour(Tour tour){
+        this.dists = tour.dists;
+        this.depot = tour.depot;
+        this.waypoints = (ArrayList<Location>)tour.waypoints.clone();
+    }
+    
     public Tour(Distances dists, Location depot){
         this.dists = dists;
         this.depot = depot;
@@ -44,5 +50,9 @@ public class Tour {
         dist = dists.getDistance(waypoints.get(waypoints.size()-1), depot);
         
         return dist;
+    }
+    
+    public Tour clone(){
+        return new Tour(this);
     }
 }

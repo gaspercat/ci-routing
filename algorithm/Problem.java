@@ -30,6 +30,16 @@ public abstract class Problem {
                 this.tours.add(new Tour(dists, depot));
             }
         }
+        
+        public double getTotalDistance(){
+            double dist = 0;
+            
+            for(Tour tour: this.tours){
+                dist += tour.getTotalDistance();
+            }
+            
+            return dist;
+        }
     }
     
     protected Depot depot;

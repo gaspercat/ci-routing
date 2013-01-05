@@ -9,5 +9,15 @@ package locations;
  * @author gaspercat
  */
 public class DropPoint extends Location{
+	private int demand, currentDemand;
+	
+	public void setDemandAmount(int value) {
+		demand = value;
+		currentDemand = value;
+	}
+	
+	public int getCurrentDemand() { return currentDemand;}
+	
+	public void deliverGoods(int value) { currentDemand -= value;}
     
 }

@@ -8,9 +8,13 @@ package locations;
  *
  * @author gaspercat
  */
-public abstract class Location {
+public class Location {
 	//Simple 2D euclidean coordinates.
 	protected int x,y;
+	
+	public Location() {
+		
+	}
 	
     public Location(int x, int y){
         this.x = x;

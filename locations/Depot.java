@@ -9,5 +9,5 @@ package locations;
  * @author gaspercat
  */
 public class Depot extends Location{
-    
+	public Depot (int x, int y) { super (x, y);}
 }

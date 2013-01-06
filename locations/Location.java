@@ -8,7 +8,7 @@ package locations;
  *
  * @author gaspercat
  */
-public class Location {
+public abstract class Location {
 	//Simple 2D euclidean coordinates.
 	protected int x,y;
 	

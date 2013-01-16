@@ -21,7 +21,14 @@ public class Distances {
         this.distances = new ArrayList<ArrayList<Double>>();
     }
     
-    public Distances(ArrayList<Location> locations){
+    /**
+     * Build a distances matrix. If useEucludean is false, the distances will be
+     * set to zero until they are manually set. If not, euclidean distances will
+     * be obtained from the location coordinates.
+     * @param locations List of locations, including depot
+     * @param useEuclidean If true, use euclidean distances
+     */
+    public Distances(ArrayList<Location> locations, boolean useEuclidean){
         this.locations = locations;
         this.distances = new ArrayList<ArrayList<Double>>();
         
@@ -29,6 +36,10 @@ public class Distances {
             ArrayList<Double> dists = new ArrayList<Double>();
                     
             for(int j=0;j<locations.size();j++){
+                double dist = 0;
+                if(useEuclidean){
+                    dist = locations.get(i).distanceTo(locations.get(j));
+                }
                 dists.add(new Double(0));
             }
             

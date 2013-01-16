@@ -33,8 +33,13 @@ public class DataParser {
 		}
 	}
 	
-	public ArrayList<DropPoint> getDropPointsList() { return dropPoints;}
-	public ArrayList<Depot> getDepotsList() { return depots;}
+	public ArrayList<DropPoint> getDropPointsList() {
+            return dropPoints;
+        }
+        
+	public ArrayList<Depot> getDepotsList() { 
+            return depots;
+        }
 	
 	private void parseLine(String line) {
 		line = line.toUpperCase().trim();

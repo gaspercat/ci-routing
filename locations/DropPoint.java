@@ -11,7 +11,9 @@ package locations;
 public class DropPoint extends Location{
 	private int demand, currentDemand;
 	
-	public DropPoint (int x, int y) { super (x, y);}
+	public DropPoint (int x, int y) {
+            super (x, y);
+        }
 	
 	public void setDemandAmount(int value) {
 		demand = value;

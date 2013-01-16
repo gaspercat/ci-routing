@@ -22,16 +22,23 @@ public class MainInterface {
             ArrayList<Distances> clusters = clusterLocations(depots, dropPoints);
 
             // Run problem for annealing
+            double aDistance = 0;
             for(Distances cluster: clusters){
                 ProblemAnnealing pAnnealing = new ProblemAnnealing(cluster, 4);
+                pAnnealing.run();
                 // TODO: Show result
             }
+            
+            System.out.println("Annealing total distance:" + aDistance);
 
             // Run problem for re-annealing
+            double rDistance = 0;
             for(Distances cluster: clusters){
                 //ProblemReAnnealing pReAnnealing = new ProblemReAnnealing(cluster, 4);
                 // TODO: Show result
             }
+            
+            System.out.println("Reannealing total distance:" + rDistance);
 	}
         
         /*

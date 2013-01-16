@@ -7,6 +7,7 @@ package algorithm;
 import java.util.ArrayList;
 
 import data.*;
+import java.util.Random;
 import locations.*;
 
 /**
@@ -14,10 +15,17 @@ import locations.*;
  * @author gaspercat
  */
 public abstract class Problem {
+    protected static final int SAMPLING_INTERVAL = 20;
+    
+    protected Random randGen;
+    
     protected class ProblemState{
         ArrayList<Tour> tours;
+        Distances dists;
         
         public ProblemState(ProblemState state){
+            this.dists = state.dists;
+            
             this.tours = new ArrayList();
             for(int i=0;i<state.tours.size();i++){
                 this.tours.add(state.tours.get(i).clone());
@@ -25,9 +33,28 @@ public abstract class Problem {
         }
         
         public ProblemState(int maxTours, Distances dists, Depot depot){
+            this.dists = dists;
+            
             this.tours = new ArrayList<Tour>();
             for(int i=0;i<maxTours;i++){
                 this.tours.add(new Tour(dists, depot));
+            }
+        }
+        
+        public void randomizeSolution(){
+            ArrayList<Location> locs = this.dists.getLocations();
+            
+            // Erase tours content
+            for(Tour t: this.tours){
+                t.clear();
+            }
+            
+            // Assign waypoints to tours randomly
+            for(Location loc: locs){
+                if(!(loc instanceof Depot)){
+                    int idx = randGen.nextInt(tours.size());
+                    tours.get(idx).addWaypoint(loc);
+                }
             }
         }
         
@@ -40,6 +67,52 @@ public abstract class Problem {
             
             return dist;
         }
+        
+        /*
+         * Get a random tour of the state.
+         * @param beEmpty If true select a tour with no drop points
+         * @param beFull If true select a tour with two or more drop points
+         */
+        public Tour getRandomTour(boolean beEmpty, boolean beFull){
+            if(beEmpty && !hasEmptyTour()) return null;
+            Tour ret = null;
+            
+            while(ret == null){
+                int idx = randGen.nextInt(this.tours.size());
+                Tour tret = this.tours.get(idx);
+                
+                if(!beEmpty || tret.isEmpty()){
+                    if(!beFull || tret.getNumWaypoints() >= 2){
+                        ret = tret;
+                    }
+                }
+            }
+            
+            return ret;
+        }
+        
+        public Tour getNonemptyTour(){
+            Tour ret = null;
+            
+            while(ret == null){
+                int idx = randGen.nextInt(this.tours.size());
+                Tour tret = this.tours.get(idx);
+                
+                if(!tret.isEmpty()){
+                    ret = tret;
+                }
+            }
+            
+            return ret;
+        }
+        
+        public boolean hasEmptyTour(){
+            for(Tour t: this.tours){
+                if(t.isEmpty()) return true;
+            }
+            
+            return false;
+        }
     }
     
     protected Depot depot;
@@ -49,7 +122,10 @@ public abstract class Problem {
     protected int maxTours;
     protected ProblemState state;
     
+    protected ArrayList<Double> fitness;
+    
     public Problem(Distances dists, int maxTours){
+        this.randGen = new Random();
         this.dists = dists;
         
         // Get depot & waypoints
@@ -65,6 +141,13 @@ public abstract class Problem {
         
         // Set max tours and initialize state
         this.maxTours = maxTours;
-        this.state = new ProblemState(maxTours, dists, depot);
+        this.state = initialSolution();
+    }
+    
+    private ProblemState initialSolution(){
+        ProblemState state = new ProblemState(this.maxTours, this.dists, this.depot);
+        state.randomizeSolution();
+        
+        return state;
     }
 }

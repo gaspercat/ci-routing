@@ -5,6 +5,7 @@
 package data;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import locations.Location;
 
@@ -13,6 +14,8 @@ import locations.Location;
  * @author gaspercat
  */
 public class Tour {
+    private static final Random randGen = new Random();
+    
     Distances dists;
     Location depot;
     ArrayList<Location> waypoints;
@@ -35,9 +38,28 @@ public class Tour {
         this.waypoints = waypoints;
     }
     
+    public void addWaypoint(Location location){
+        waypoints.add(location);
+    }
+    
     public void addWaypoint(int pos, Location location){
-        if(pos < 0 || pos >= waypoints.size()) return;
+        if(pos < 0 || pos > waypoints.size()) return;
         waypoints.add(pos, location);
+    }
+    
+    public Location delWaypoint(){
+        int idx = randGen.nextInt(this.waypoints.size());
+        Location ret = this.waypoints.remove(idx);
+        return ret;
+    }
+    
+    public Location delWaypoint(int idx){
+        Location ret = this.waypoints.remove(idx);
+        return ret;
+    }
+    
+    public int getNumWaypoints(){
+        return this.waypoints.size();
     }
     
     public double getTotalDistance(){
@@ -52,7 +74,26 @@ public class Tour {
         return dist;
     }
     
+    public boolean isEmpty(){
+        return this.waypoints.size() == 0;
+    }
+    
+    public void swapWaypoints(int i1, int i2){
+        Location w1 = this.waypoints.get(i1);
+        Location w2 = this.waypoints.get(i2);
+        
+        this.waypoints.remove(i1);
+        this.waypoints.add(i1, w2);
+        
+        this.waypoints.remove(i2);
+        this.waypoints.add(i2, w1);
+    }
+    
     public Tour clone(){
         return new Tour(this);
+    }
+    
+    public void clear(){
+        waypoints.clear();
     }
 }

@@ -67,9 +67,9 @@ public class Tour {
         
         double dist = dists.getDistance(depot, waypoints.get(0));
         for(int i=0;i<waypoints.size()-1;i++){
-            dist = dist + dists.getDistance(waypoints.get(i), waypoints.get(i+1));
+            dist += dists.getDistance(waypoints.get(i), waypoints.get(i+1));
         }
-        dist = dists.getDistance(waypoints.get(waypoints.size()-1), depot);
+        dist += dists.getDistance(waypoints.get(waypoints.size()-1), depot);
         
         return dist;
     }

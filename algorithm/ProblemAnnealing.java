@@ -31,9 +31,9 @@ public class ProblemAnnealing extends Problem{
      */
     public void run(){
         this.p_absoluteTemperature = 0.001;
-        this.p_coolingRate = 0.99;
-        this.p_tIterations = 20;
-        this.temperature = 10000;
+        this.p_coolingRate = 0.9999;
+        this.p_tIterations = 50;
+        this.temperature = 100;
         
         runAlgorithm();
     }
@@ -59,10 +59,13 @@ public class ProblemAnnealing extends Problem{
         // While temperature higher than absolute temperature
         while(this.temperature > this.p_absoluteTemperature){
             // Make t iterations at this temperature
+            boolean selected = false;
+            //while(!selected){
             for(int i=0;i<this.p_tIterations;i++){
                 // Select next state
                 ProblemState next = nextState();
                 if(isStateSelected(next)){
+                    selected = true;
                     this.state = next;
                 }
 
@@ -71,11 +74,11 @@ public class ProblemAnnealing extends Problem{
             }
             
             // Sample data when needed
-            iter++;
             if(iter % SAMPLING_INTERVAL == 0){
                 double fvalue = this.state.getTotalDistance();
                 this.fitness.add(new Double(fvalue));
             }
+            iter++;
         }
         
         return;
@@ -86,12 +89,14 @@ public class ProblemAnnealing extends Problem{
         double dN = state.getTotalDistance();
         
         // If new state better than current one, accept it
-        if(dC <= dN){
+        if(dN <= dC){
             return true;
         }
         
         // Calculate probability of acceptance
-        double p = Math.exp((dC - dN) / this.temperature);
+        double pow = -(dN - dC) / this.temperature;
+        double p = Math.exp(pow);
+
         return this.randGen.nextDouble() <= p;
     }
     

@@ -40,7 +40,7 @@ public class Distances {
                 if(useEuclidean){
                     dist = locations.get(i).distanceTo(locations.get(j));
                 }
-                dists.add(new Double(0));
+                dists.add(new Double(dist));
             }
             
             this.distances.add(dists);

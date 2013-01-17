@@ -150,4 +150,76 @@ public abstract class Problem {
         
         return state;
     }
+    
+    // ** Calculate permutation of the solution (next state)
+    // ***************************************************************
+    
+    protected ProblemState nextState(){
+        ProblemState ret = null;
+        
+        while(ret == null){
+            int val = randGen.nextInt(3);
+            switch(val){
+                case 0:
+                    ret = operatorSwapTourMembers();
+                    break;
+                case 1:
+                    ret = operatorMoveTourMember();
+                    break;
+                case 2:
+                    ret = operatorMoveFromTour();
+                    break;
+            }
+        }
+        
+        return ret;
+    }
+    
+    protected ProblemState operatorSwapTourMembers(){
+        // Clone current solution
+        ProblemState ret = new ProblemState(this.state);
+        
+        // Select affected tour
+        Tour tour = ret.getRandomTour(false, true);
+        if(tour == null) return null;
+        
+        // Select two random members of the tour and swap
+        int m1 = randGen.nextInt(tour.getNumWaypoints());
+        int m2 = randGen.nextInt(tour.getNumWaypoints());
+        tour.swapWaypoints(m1, m2);
+        
+        return ret;
+    }
+    
+    protected ProblemState operatorMoveTourMember(){
+        // Clone current solution
+        ProblemState ret = new ProblemState(this.state);
+        
+        // Select affected tour
+        Tour tour = ret.getRandomTour(false, true);
+        if(tour == null) return null;
+        
+        // Remove a tour member and insert to a random position
+        Location memb = tour.delWaypoint();
+        int ins = randGen.nextInt(tour.getNumWaypoints() + 1);
+        tour.addWaypoint(ins, memb);
+        
+        return ret;
+    }
+    
+    protected ProblemState operatorMoveFromTour(){        
+        // Clone current solution
+        ProblemState ret = new ProblemState(this.state);
+        
+        // Select origin & destination tours
+        Tour oTour = ret.getNonemptyTour();
+        Tour dTour = ret.getRandomTour(false, false);
+        if(oTour == null) return null;
+        
+        // Select two random members of the tour and swap
+        Location memb = oTour.delWaypoint();
+        dTour.addWaypoint(randGen.nextInt(dTour.getNumWaypoints() + 1), memb);
+        
+        return ret;
+    }
 }

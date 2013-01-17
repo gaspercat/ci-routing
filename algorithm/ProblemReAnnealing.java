@@ -17,7 +17,7 @@ import locations.*;
 public class ProblemReAnnealing extends Problem{
     double p_stateSpaceSize;
     double p_absoluteTemperature;
-    double p_coolingRate;
+    double p_temperatureFactor;
     
     double temperatureO;
     double temperatureC;
@@ -35,7 +35,7 @@ public class ProblemReAnnealing extends Problem{
      */
     public void run(){
         this.p_absoluteTemperature = 0.001;
-        this.p_coolingRate = 0.9999;
+        this.p_temperatureFactor = 0.7;
         
         // Set original and current temperature
         this.temperatureO = 100;
@@ -49,7 +49,7 @@ public class ProblemReAnnealing extends Problem{
      */
     public void run(double temp, double absTemp, double coolRate){
         this.p_absoluteTemperature = absTemp;
-        this.p_coolingRate = coolRate;
+        this.p_temperatureFactor = coolRate;
         
         // Set original and current temperature
         this.temperatureO = temp;
@@ -117,12 +117,12 @@ public class ProblemReAnnealing extends Problem{
         double nDivides = factorial(n + k - 1) / (factorial(k) * factorial(n - 1));
                 
         // Return final size of states space
-        return pDrops * nDivides;
+        return Math.log(pDrops * nDivides);
     }
     
     private double getCurrentTemperature(int time){
         if(time == 0) return this.temperatureO;
-        double pow = this.p_coolingRate * Math.pow(time, 1/p_stateSpaceSize);
+        double pow = this.p_temperatureFactor * Math.pow(time, 1/p_stateSpaceSize);
         return this.temperatureO * Math.exp(-pow);
     }
     

@@ -27,20 +27,22 @@ public class MainInterface {
             for(Distances cluster: clusters){
                 ProblemAnnealing pAnnealing = new ProblemAnnealing(cluster, 4);
                 pAnnealing.run();
-                // TODO: Show result
+                
+                aDistance += pAnnealing.getResult().getTotalDistance();
             }
             
-            System.out.println("Annealing total distance:" + aDistance);
+            System.out.println("Annealing total distance: " + aDistance);
 
             // Run problem for re-annealing
             double rDistance = 0;
             for(Distances cluster: clusters){
                 ProblemReAnnealing pReAnnealing = new ProblemReAnnealing(cluster, 4);
                 pReAnnealing.run();
-                // TODO: Show result
+                
+                rDistance += pReAnnealing.getResult().getTotalDistance();
             }
             
-            System.out.println("Reannealing total distance:" + rDistance);
+            System.out.println("Reannealing total distance: " + rDistance);
 	}
         
         /*

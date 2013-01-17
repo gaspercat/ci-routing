@@ -19,7 +19,7 @@ public abstract class Problem {
     
     protected Random randGen;
     
-    protected class ProblemState{
+    public class ProblemState{
         ArrayList<Tour> tours;
         Distances dists;
         
@@ -145,9 +145,18 @@ public abstract class Problem {
     }
     
     /*
-     * Returns n evenly-spaced samples of the fitness of the problem along the
-     * optimization process (along time)
+     * Get the result of the algorithm
+     * @return Result of the execution
+     */
+    public ProblemState getResult(){
+        return this.state;
+    }
+    
+    /*
+     * Method for sampling n evenly-spaced values of the fitness of the problem 
+     * over the optimization process (over time)
      * @param n Number of samples to take
+     * @return n samples of the fitness
      */
     public ArrayList<Double> sampleHistoricFitness(int n){
         if(this.fitness == null ||this.fitness.size() < n){

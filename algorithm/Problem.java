@@ -141,18 +141,39 @@ public abstract class Problem {
         
         // Set max tours and initialize state
         this.maxTours = maxTours;
-        this.state = initialSolution();
+        this.state = initialState();
     }
     
-    private ProblemState initialSolution(){
+    /*
+     * Returns n evenly-spaced samples of the fitness of the problem along the
+     * optimization process (along time)
+     * @param n Number of samples to take
+     */
+    public ArrayList<Double> sampleHistoricFitness(int n){
+        if(this.fitness == null ||this.fitness.size() < n){
+            return null;
+        }
+        
+        ArrayList<Double> ret = new ArrayList<Double>();
+        
+        float freq = this.fitness.size() / n;
+        for(int i=1;i<=n;i++){
+            int idx = Math.round(i*freq-1);
+            ret.add(this.fitness.get(idx));
+        }
+        
+        return ret;
+    }
+    
+    // ** Calculate permutation of the solution (next state)
+    // ***************************************************************
+    
+    protected ProblemState initialState(){
         ProblemState state = new ProblemState(this.maxTours, this.dists, this.depot);
         state.randomizeSolution();
         
         return state;
     }
-    
-    // ** Calculate permutation of the solution (next state)
-    // ***************************************************************
     
     protected ProblemState nextState(){
         ProblemState ret = null;

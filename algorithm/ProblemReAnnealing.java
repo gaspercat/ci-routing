@@ -58,7 +58,7 @@ public class ProblemReAnnealing extends Problem{
         runAlgorithm();
     }
     
-    public void runAlgorithm(){
+    private void runAlgorithm(){
         // Initialize fitness historical data
         fitness = new ArrayList<Double>();  
       
@@ -74,11 +74,11 @@ public class ProblemReAnnealing extends Problem{
             }
             
             // Sample data when needed
-            if(iter % SAMPLING_INTERVAL == 0){
+            if(iter % SAMPLING_INTERVAL*1 == 0){
                 double fvalue = this.state.getTotalDistance();
                 this.fitness.add(new Double(fvalue));
             }
-            iter++;
+            iter = iter + 1;
             
             // Lower temperature
             this.temperatureC = getCurrentTemperature(iter);
@@ -107,21 +107,32 @@ public class ProblemReAnnealing extends Problem{
         int nLocations = this.dropPoints.size();
         int nTours = this.maxTours;
         
-        // Get number of permutations of the drop points (n!)
-        double pDrops = 1;
-        for (int i = 1; i <= nLocations; ++i){
-            pDrops *= i;
-        }
+        // Number of possible cut points & number of cuts
+        int n = nLocations + 1;
+        int k = nTours - 1;
         
-        // Get number of ways to cluster a single permutation
-        double nDivides = (nTours - 1)
+        // Get number of permutations of the drop points and number of ways to
+        // cluster a singe permutation (k-combination with repetitions)
+        double pDrops = factorial(nLocations);
+        double nDivides = factorial(n + k - 1) / (factorial(k) * factorial(n - 1));
                 
+        // Return final size of states space
         return pDrops * nDivides;
     }
     
     private double getCurrentTemperature(int time){
         if(time == 0) return this.temperatureO;
         double pow = this.p_coolingRate * Math.pow(time, 1/p_stateSpaceSize);
-        return this.temperatureO * Math.exp(pow);
+        return this.temperatureO * Math.exp(-pow);
+    }
+    
+    private double factorial(int n){
+        double ret = 1;
+        
+        for(int i=1;i<=n;i++){
+            ret *=i;
+        }
+        
+        return ret;
     }
 }

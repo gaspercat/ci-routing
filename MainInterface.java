@@ -8,6 +8,7 @@ import data.Distances;
 import data.DataParser;
 
 import algorithm.ProblemAnnealing;
+import algorithm.ProblemReAnnealing;
 
 public class MainInterface {
 	public static void main(String[] args) {
@@ -34,7 +35,8 @@ public class MainInterface {
             // Run problem for re-annealing
             double rDistance = 0;
             for(Distances cluster: clusters){
-                //ProblemReAnnealing pReAnnealing = new ProblemReAnnealing(cluster, 4);
+                ProblemReAnnealing pReAnnealing = new ProblemReAnnealing(cluster, 4);
+                pReAnnealing.run();
                 // TODO: Show result
             }
             

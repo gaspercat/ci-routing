@@ -50,7 +50,7 @@ public class ProblemAnnealing extends Problem{
         runAlgorithm();
     }
     
-    public void runAlgorithm(){
+    private void runAlgorithm(){
         // Initialize fitness historical data
         fitness = new ArrayList<Double>();  
       

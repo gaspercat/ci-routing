@@ -27,15 +27,15 @@ public class ProblemReAnnealing extends Problem{
         this.randGen = new Random();
         
         // Set size of the states space
-        p_stateSpaceSize = getStateSpaceSize();
+        p_stateSpaceSize = getProblemDimensionality();
     }
     
     /*
      * Run algorithm with defaut parameters
      */
     public void run(){
-        this.p_absoluteTemperature = 0.001;
-        this.p_temperatureFactor = 0.7;
+        this.p_absoluteTemperature = 0.25;
+        this.p_temperatureFactor = 3;
         
         // Set original and current temperature
         this.temperatureO = 100;
@@ -74,7 +74,7 @@ public class ProblemReAnnealing extends Problem{
             }
             
             // Sample data when needed
-            if(iter % SAMPLING_INTERVAL*1 == 0){
+            if(iter % SAMPLING_INTERVAL == 0){
                 double fvalue = this.state.getTotalDistance();
                 this.fitness.add(new Double(fvalue));
             }
@@ -103,27 +103,36 @@ public class ProblemReAnnealing extends Problem{
         return this.randGen.nextDouble() <= p;
     }
     
-    private double getStateSpaceSize(){
-        int nLocations = this.dropPoints.size();
-        int nTours = this.maxTours;
+    private boolean stopCriterionMet(){
+        int size = this.fitness.size();
+        if(size <= 10){
+            return false;
+        }
         
-        // Number of possible cut points & number of cuts
-        int n = nLocations + 1;
-        int k = nTours - 1;
+        double tFitness = this.fitness.get(size - 1).doubleValue();
+        for(int i=2;i<=10;i++){
+            if(this.fitness.get(size - i).doubleValue() != tFitness){
+                return false;
+            }
+        }
         
-        // Get number of permutations of the drop points and number of ways to
-        // cluster a singe permutation (k-combination with repetitions)
-        double pDrops = factorial(nLocations);
-        double nDivides = factorial(n + k - 1) / (factorial(k) * factorial(n - 1));
-                
-        // Return final size of states space
-        return Math.log(pDrops * nDivides);
+        return true;
+    }
+    
+    private double getProblemDimensionality(){
+        // Number of dimensions of the problem is equal o the number of locations
+        // to visit that can be permutated plus the number of tours that can be
+        // used minus one (read documentation for details)
+        return this.dropPoints.size() + this.maxTours - 1;
     }
     
     private double getCurrentTemperature(int time){
         if(time == 0) return this.temperatureO;
-        double pow = this.p_temperatureFactor * Math.pow(time, 1/p_stateSpaceSize);
-        return this.temperatureO * Math.exp(-pow);
+        
+        double pow = this.p_temperatureFactor * Math.pow(time, 1 / this.p_stateSpaceSize);
+        double temp = this.temperatureO * Math.exp(-pow);
+        
+        return temp;
     }
     
     private double factorial(int n){

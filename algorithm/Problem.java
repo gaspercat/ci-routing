@@ -21,9 +21,11 @@ public abstract class Problem {
     
     public class ProblemState{
         ArrayList<Tour> tours;
+        Depot depot;
         Distances dists;
         
         public ProblemState(ProblemState state){
+            this.depot = state.depot;
             this.dists = state.dists;
             
             this.tours = new ArrayList();
@@ -32,13 +34,12 @@ public abstract class Problem {
             }
         }
         
-        public ProblemState(int maxTours, Distances dists, Depot depot){
+        public ProblemState(Distances dists, Depot depot){
+            this.depot = depot;
             this.dists = dists;
             
             this.tours = new ArrayList<Tour>();
-            for(int i=0;i<maxTours;i++){
-                this.tours.add(new Tour(dists, depot));
-            }
+            this.tours.add(new Tour(dists, depot));
         }
         
         public void randomizeSolution(){
@@ -50,10 +51,12 @@ public abstract class Problem {
             }
             
             // Assign waypoints to tours randomly
-            for(Location loc: locs){
-                if(!(loc instanceof Depot)){
-                    int idx = randGen.nextInt(tours.size());
-                    tours.get(idx).addWaypoint(loc);
+            while(!locs.isEmpty()){
+                Location loc = locs.get(randGen.nextInt(locs.size()));
+                locs.remove(loc);
+                
+                if(loc instanceof DropPoint){
+                    this.tours.get(0).addWaypoint(loc);
                 }
             }
         }
@@ -119,7 +122,6 @@ public abstract class Problem {
     protected ArrayList<DropPoint> dropPoints;
     protected Distances dists;
     
-    protected int maxTours;
     protected ProblemState state;
     protected ProblemState bestState;	//Current best state.
     protected double temperature;
@@ -127,7 +129,7 @@ public abstract class Problem {
     
     protected ArrayList<Double> fitness;
     
-    public Problem(Distances dists, int maxTours){
+    public Problem(Distances dists){
         this.randGen = new Random();
         this.dists = dists;
         
@@ -143,7 +145,6 @@ public abstract class Problem {
         }
         
         // Set max tours and initialize state
-        this.maxTours = maxTours;
         this.state = initialState();
         this.bestState = initialState();
     }
@@ -182,7 +183,7 @@ public abstract class Problem {
     // ***************************************************************
     
     protected ProblemState initialState(){
-        ProblemState state = new ProblemState(this.maxTours, this.dists, this.depot);
+        ProblemState state = new ProblemState(this.dists, this.depot);
         state.randomizeSolution();
         
         return state;

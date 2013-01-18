@@ -25,7 +25,7 @@ public class MainInterface {
             // Run problem for annealing
             double aDistance = 0;
             for(Distances cluster: clusters){
-                ProblemAnnealing pAnnealing = new ProblemAnnealing(cluster, 4);
+                ProblemAnnealing pAnnealing = new ProblemAnnealing(cluster);
                 pAnnealing.run();
                 
                 aDistance += pAnnealing.getResult().getTotalDistance();
@@ -36,7 +36,7 @@ public class MainInterface {
             // Run problem for re-annealing
             double rDistance = 0;
             for(Distances cluster: clusters){
-                ProblemReAnnealing pReAnnealing = new ProblemReAnnealing(cluster, 4);
+                ProblemReAnnealing pReAnnealing = new ProblemReAnnealing(cluster);
                 pReAnnealing.run();
                 
                 rDistance += pReAnnealing.getResult().getTotalDistance();

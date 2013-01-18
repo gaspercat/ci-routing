@@ -16,6 +16,7 @@ import locations.*;
  */
 public abstract class Problem {
     protected static final int SAMPLING_INTERVAL = 20;
+    protected static final int DROPPOINTS_IN_TOUR_TO_BE_FULL = 2;
     
     protected Random randGen;
     
@@ -40,6 +41,11 @@ public abstract class Problem {
             
             this.tours = new ArrayList<Tour>();
             this.tours.add(new Tour(dists, depot));
+        }
+        
+        public Tour createEmptyTour() {
+            tours.add(new Tour(dists, depot));
+            return tours.get(tours.size()-1);
         }
         
         public void randomizeSolution(){
@@ -85,7 +91,7 @@ public abstract class Problem {
                 Tour tret = this.tours.get(idx);
                 
                 if(!beEmpty || tret.isEmpty()){
-                    if(!beFull || tret.getNumWaypoints() >= 2){
+                    if(!beFull || tret.getNumWaypoints() >= DROPPOINTS_IN_TOUR_TO_BE_FULL){
                         ret = tret;
                     }
                 }
@@ -191,9 +197,10 @@ public abstract class Problem {
     
     protected ProblemState nextState(){
         ProblemState ret = null;
+        int numberOfOperators = 4;
         
         while(ret == null){
-            int val = randGen.nextInt(3);
+            int val = randGen.nextInt(numberOfOperators);
             switch(val){
                 case 0:
                     ret = operatorSwapTourMembers();
@@ -204,6 +211,9 @@ public abstract class Problem {
                 case 2:
                     ret = operatorMoveFromTour();
                     break;
+                case 3:
+                	ret = operatorNewTourAndMove();
+                	break;
             }
         }
         
@@ -255,6 +265,17 @@ public abstract class Problem {
         Location memb = oTour.delWaypoint();
         dTour.addWaypoint(randGen.nextInt(dTour.getNumWaypoints() + 1), memb);
         
+        return ret;
+    }
+    
+    protected ProblemState operatorNewTourAndMove(){
+        ProblemState ret = new ProblemState(this.state);
+    	Tour newTour = ret.createEmptyTour();
+        Tour sourceTour = ret.getRandomTour(false, true);
+        if (sourceTour == null) return null;
+    	
+        Location memb = sourceTour.delWaypoint();
+        newTour.addWaypoint(0, memb); // it will be the first one.
         return ret;
     }
 }

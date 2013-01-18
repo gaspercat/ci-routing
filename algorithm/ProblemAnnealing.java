@@ -18,8 +18,8 @@ public class ProblemAnnealing extends Problem{
     double p_coolingRate;
     int    p_tIterations;
         
-    public ProblemAnnealing(Distances dists, int maxTours){
-        super(dists, maxTours);
+    public ProblemAnnealing(Distances dists){
+        super(dists);
         this.randGen = new Random();
     }
     

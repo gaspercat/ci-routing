@@ -32,8 +32,8 @@ public class ProblemReAnnealing extends Problem{
      * Run algorithm with defaut parameters
      */
     public void run(){
-        this.p_absoluteTemperature = 0.25;
-        this.p_temperatureFactor = 3;
+        this.p_absoluteTemperature = 0.005;
+        this.p_temperatureFactor = 5.8;
         
         // Set original and current temperature
         this.temperatureInitial = 100;
@@ -64,8 +64,8 @@ public class ProblemReAnnealing extends Problem{
         
         // While temperature higher than absolute temperature
         this.temperature = getCurrentTemperature(0);
-        //while(this.temperature > this.p_absoluteTemperature){
-        while(!stopCriterionMet()){
+        while(this.temperature > this.p_absoluteTemperature){
+//        while(!stopCriterionMet()){
             // Select next state
             Problem.ProblemState next = nextState();
             if(isStateSelected(next)){
@@ -94,6 +94,9 @@ public class ProblemReAnnealing extends Problem{
         if(dN <= dC){
             return true;
         }
+        
+        if (dN < bestState.getTotalDistance())
+        	bestState = state;
         
         // Calculate probability of acceptance
         //double pow = (dN - dC) / this.temperatureC;

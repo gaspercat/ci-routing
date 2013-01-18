@@ -41,6 +41,10 @@ public class DataParser {
             return depots;
         }
 	
+	public int getTruckCapacity() {
+		return truckCapacity;
+	}
+	
 	private void parseLine(String line) {
 		line = line.toUpperCase().trim();
 		if (line.contains("EDGE_WEIGHT_TYPE")) {

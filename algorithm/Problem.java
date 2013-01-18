@@ -123,6 +123,7 @@ public abstract class Problem {
     protected ProblemState state;
     protected ProblemState bestState;	//Current best state.
     protected double temperature;
+    protected double p_absoluteTemperature;
     
     protected ArrayList<Double> fitness;
     

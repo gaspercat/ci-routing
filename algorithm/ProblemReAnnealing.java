@@ -16,7 +16,6 @@ import locations.*;
  */
 public class ProblemReAnnealing extends Problem{
     double p_stateSpaceSize;
-    double p_absoluteTemperature;
     double p_temperatureFactor;
     
     double temperatureInitial;

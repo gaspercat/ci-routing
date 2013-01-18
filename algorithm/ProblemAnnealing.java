@@ -15,7 +15,6 @@ import locations.*;
  * @author gaspercat
  */
 public class ProblemAnnealing extends Problem{
-    double p_absoluteTemperature;
     double p_coolingRate;
     int    p_tIterations;
         

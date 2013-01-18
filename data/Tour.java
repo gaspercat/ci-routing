@@ -26,7 +26,7 @@ public class Tour {
         this.dists = tour.dists;
         this.depot = tour.depot;
         this.waypoints = (ArrayList<DropPoint>)tour.waypoints.clone();
-        this.mCapacity = mCapacity;
+        this.mCapacity = tour.mCapacity;
     }
     
     public Tour(Distances dists, Location depot, double mCapacity){

@@ -15,7 +15,7 @@ public class MainInterface {
             DataParser parser = new DataParser();
 
             // Parse drop points and depots
-            parser.parseFile("inputData/eil22.vrp");
+            parser.parseFile("inputData/eilB101.vrp");
             double capacity = parser.getTruckCapacity();
             double minDemand = parser.getMinDemand();
             ArrayList<Depot> depots = parser.getDepotsList();

@@ -33,7 +33,8 @@ public class ProblemReAnnealing extends Problem{
      */
     public void run(){
         this.p_absoluteTemperature = 0.001;
-        this.p_temperatureFactor = 7.5;
+        //this.p_temperatureFactor = 7.5;
+        this.p_temperatureFactor = 10;
         
         // Set original and current temperature
         this.temperatureInitial = 100;

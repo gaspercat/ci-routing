@@ -133,6 +133,10 @@ public abstract class Problem {
             return ret;
         }
         
+        public void delTour(Tour t){
+            this.tours.remove(t);
+        }
+        
         public boolean hasEmptyTour(){
             for(Tour t: this.tours){
                 if(t.isEmpty()) return true;
@@ -285,6 +289,11 @@ public abstract class Problem {
         // Select two random members of the tour and swap
         DropPoint memb = oTour.delWaypoint();
         dTour.addWaypoint(randGen.nextInt(dTour.getNumWaypoints() + 1), memb);
+        
+        // Remove old tour if empty
+        if(oTour.getNumWaypoints() == 0){
+            ret.delTour(oTour);
+        }
         
         return ret;
     }

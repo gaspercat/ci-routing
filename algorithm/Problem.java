@@ -122,6 +122,7 @@ public abstract class Problem {
     protected int maxTours;
     protected ProblemState state;
     protected ProblemState bestState;	//Current best state.
+    protected double temperature;
     
     protected ArrayList<Double> fitness;
     
@@ -253,5 +254,24 @@ public abstract class Problem {
         dTour.addWaypoint(randGen.nextInt(dTour.getNumWaypoints() + 1), memb);
         
         return ret;
+    }
+    
+    protected boolean isStateSelected(Problem.ProblemState state){
+        double dC = this.state.getTotalDistance();
+        double dN = state.getTotalDistance();
+        
+        if (dN < bestState.getTotalDistance())
+        	bestState = state;
+        
+        // If new state better than current one, accept it
+        if(dN <= dC){
+            return true;
+        }
+        
+        // Calculate probability of acceptance
+        double pow = (dN - dC) / this.temperature;
+        double p = 1 / (1 + Math.exp(pow));
+
+        return this.randGen.nextDouble() <= p;
     }
 }

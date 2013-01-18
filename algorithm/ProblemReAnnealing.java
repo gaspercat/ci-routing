@@ -19,8 +19,7 @@ public class ProblemReAnnealing extends Problem{
     double p_absoluteTemperature;
     double p_temperatureFactor;
     
-    double temperatureO;
-    double temperatureC;
+    double temperatureInitial;
     
     public ProblemReAnnealing(Distances dists, int maxTours){
         super(dists, maxTours);
@@ -38,8 +37,8 @@ public class ProblemReAnnealing extends Problem{
         this.p_temperatureFactor = 3;
         
         // Set original and current temperature
-        this.temperatureO = 100;
-        this.temperatureC = 100;
+        this.temperatureInitial = 100;
+        this.temperature = 100;
         
         runAlgorithm();
     }
@@ -52,8 +51,8 @@ public class ProblemReAnnealing extends Problem{
         this.p_temperatureFactor = coolRate;
         
         // Set original and current temperature
-        this.temperatureO = temp;
-        this.temperatureC = temp;
+        this.temperatureInitial = temp;
+        this.temperature = temp;
         
         runAlgorithm();
     }
@@ -65,8 +64,8 @@ public class ProblemReAnnealing extends Problem{
         int iter = 0;
         
         // While temperature higher than absolute temperature
-        this.temperatureC = getCurrentTemperature(0);
-        while(this.temperatureC > this.p_absoluteTemperature){
+        this.temperature = getCurrentTemperature(0);
+        while(this.temperature > this.p_absoluteTemperature){
             // Select next state
             Problem.ProblemState next = nextState();
             if(isStateSelected(next)){
@@ -81,29 +80,10 @@ public class ProblemReAnnealing extends Problem{
             iter = iter + 1;
             
             // Lower temperature
-            this.temperatureC = getCurrentTemperature(iter);
+            this.temperature = getCurrentTemperature(iter);
         }
         
         return;
-    }
-    
-    private boolean isStateSelected(Problem.ProblemState state){
-        double dC = this.state.getTotalDistance();
-        double dN = state.getTotalDistance();
-        
-        if (dN < bestState.getTotalDistance())
-        	bestState = state;
-        
-        // If new state better than current one, accept it
-        if(dN <= dC){
-            return true;
-        }
-        
-        // Calculate probability of acceptance
-        double pow = (dN - dC) / this.temperatureC;
-        double p = 1 / (1 + Math.exp(pow));
-
-        return this.randGen.nextDouble() <= p;
     }
     
     private boolean stopCriterionMet(){
@@ -130,10 +110,10 @@ public class ProblemReAnnealing extends Problem{
     }
     
     private double getCurrentTemperature(int time){
-        if(time == 0) return this.temperatureO;
+        if(time == 0) return this.temperatureInitial;
         
         double pow = this.p_temperatureFactor * Math.pow(time, 1 / this.p_stateSpaceSize);
-        double temp = this.temperatureO * Math.exp(-pow);
+        double temp = this.temperatureInitial * Math.exp(-pow);
         
         return temp;
     }

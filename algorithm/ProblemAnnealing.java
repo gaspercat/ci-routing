@@ -18,9 +18,7 @@ public class ProblemAnnealing extends Problem{
     double p_absoluteTemperature;
     double p_coolingRate;
     int    p_tIterations;
-    
-    double temperature;
-    
+        
     public ProblemAnnealing(Distances dists, int maxTours){
         super(dists, maxTours);
         this.randGen = new Random();
@@ -82,24 +80,5 @@ public class ProblemAnnealing extends Problem{
         }
         
         return;
-    }
-    
-    private boolean isStateSelected(ProblemState state){
-        double dC = this.state.getTotalDistance();
-        double dN = state.getTotalDistance();
-        
-        if (dN < bestState.getTotalDistance())
-        	bestState = state;
-        
-        // If new state better than current one, accept it
-        if(dN <= dC){
-            return true;
-        }
-        
-        // Calculate probability of acceptance
-        double pow = -(dN - dC) / this.temperature;
-        double p = Math.exp(pow);
-
-        return this.randGen.nextDouble() <= p;
     }
 }

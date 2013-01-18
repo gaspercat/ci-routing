@@ -20,8 +20,8 @@ public class ProblemReAnnealing extends Problem{
     
     double temperatureInitial;
     
-    public ProblemReAnnealing(Distances dists, int maxTours){
-        super(dists, maxTours);
+    public ProblemReAnnealing(Distances dists){
+        super(dists);
         this.randGen = new Random();
         
         // Set size of the states space
@@ -64,7 +64,8 @@ public class ProblemReAnnealing extends Problem{
         
         // While temperature higher than absolute temperature
         this.temperature = getCurrentTemperature(0);
-        while(this.temperature > this.p_absoluteTemperature){
+        //while(this.temperature > this.p_absoluteTemperature){
+        while(!stopCriterionMet()){
             // Select next state
             Problem.ProblemState next = nextState();
             if(isStateSelected(next)){
@@ -85,6 +86,35 @@ public class ProblemReAnnealing extends Problem{
         return;
     }
     
+    private boolean isStateSelected(ProblemState state){
+        double dC = this.state.getTotalDistance();
+        double dN = state.getTotalDistance();
+        
+        // If new state better than current one, accept it
+        if(dN <= dC){
+            return true;
+        }
+        
+        // Calculate probability of acceptance
+        //double pow = (dN - dC) / this.temperatureC;
+        //double p = 1 / (1 + Math.exp(pow));
+
+        double t = this.temperature;
+        
+        double p = 1;
+        for(int i=0;i<this.p_stateSpaceSize;i++){
+            // Calculate uniform distribution u = [0,1], new y value & prob. for dimension
+            double u = randGen.nextDouble();
+            double y = Math.signum(u-0.5) * t * (Math.pow(1+1/t, 2*u-1) - 1);
+            double tp = 1 / ((2*Math.abs(y) + t) * Math.log(1 + 1/t));
+        
+            // Accumulate to final probability
+            p = p * tp;
+        }
+        
+        return this.randGen.nextDouble() <= p;
+    }
+
     private boolean stopCriterionMet(){
         int size = this.fitness.size();
         if(size <= 10){
@@ -105,7 +135,7 @@ public class ProblemReAnnealing extends Problem{
         // Number of dimensions of the problem is equal o the number of locations
         // to visit that can be permutated plus the number of tours that can be
         // used minus one (read documentation for details)
-        return this.dropPoints.size() + this.maxTours - 1;
+        return this.dropPoints.size();
     }
     
     private double getCurrentTemperature(int time){

@@ -256,23 +256,4 @@ public abstract class Problem {
         
         return ret;
     }
-    
-    protected boolean isStateSelected(Problem.ProblemState state){
-        double dC = this.state.getTotalDistance();
-        double dN = state.getTotalDistance();
-        
-        if (dN < bestState.getTotalDistance())
-        	bestState = state;
-        
-        // If new state better than current one, accept it
-        if(dN <= dC){
-            return true;
-        }
-        
-        // Calculate probability of acceptance
-        double pow = (dN - dC) / this.temperature;
-        double p = 1 / (1 + Math.exp(pow));
-
-        return this.randGen.nextDouble() <= p;
-    }
 }

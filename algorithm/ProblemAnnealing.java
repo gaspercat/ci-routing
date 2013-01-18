@@ -47,7 +47,7 @@ public class ProblemAnnealing extends Problem{
         runAlgorithm();
     }
     
-    private void runAlgorithm(){
+    public void runAlgorithm(){
         // Initialize fitness historical data
         fitness = new ArrayList<Double>();  
       
@@ -79,5 +79,24 @@ public class ProblemAnnealing extends Problem{
         }
         
         return;
+    }
+    
+    protected boolean isStateSelected(Problem.ProblemState state){
+        double dC = this.state.getTotalDistance();
+        double dN = state.getTotalDistance();
+        
+        if (dN < bestState.getTotalDistance())
+        	bestState = state;
+        
+        // If new state better than current one, accept it
+        if(dN <= dC){
+            return true;
+        }
+        
+        // Calculate probability of acceptance
+        double pow = (dN - dC) / this.temperature;
+        double p = 1 / (1 + Math.exp(pow));
+
+        return this.randGen.nextDouble() <= p;
     }
 }

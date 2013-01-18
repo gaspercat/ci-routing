@@ -20,6 +20,7 @@ public abstract class Problem {
     
     protected Random randGen;
     protected double minDemand;
+    protected int n_iter;
     
     public class ProblemState{
         double mCapacity;
@@ -186,6 +187,10 @@ public abstract class Problem {
      */
     public ProblemState getResult(){
         return this.bestState;
+    }
+    
+    public int getNumberIterations(){
+        return this.n_iter;
     }
     
     /*

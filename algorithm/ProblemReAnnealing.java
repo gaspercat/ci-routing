@@ -84,7 +84,7 @@ public class ProblemReAnnealing extends Problem{
             this.temperature = getCurrentTemperature(iter);
         }
         
-        System.out.println(iter);
+        this.n_iter = iter;
         return;
     }
     

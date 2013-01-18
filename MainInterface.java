@@ -15,7 +15,7 @@ public class MainInterface {
             DataParser parser = new DataParser();
 
             // Parse drop points and depots
-            parser.parseFile("inputData/eilB101.vrp");
+            parser.parseFile("inputData/eil33.vrp");
             double capacity = parser.getTruckCapacity();
             double minDemand = parser.getMinDemand();
             ArrayList<Depot> depots = parser.getDepotsList();
@@ -24,27 +24,49 @@ public class MainInterface {
             // Cluster locations by proximity
             ArrayList<Distances> clusters = clusterLocations(depots, dropPoints);
 
-            // Run problem for annealing
-            double aDistance = 0;
-            for(Distances cluster: clusters){
-                ProblemAnnealing pAnnealing = new ProblemAnnealing(cluster, capacity, minDemand);
-                pAnnealing.run();
-                System.out.println("Penalty: " + pAnnealing.getResult().getTotalPenalty());
-                aDistance += pAnnealing.getResult().getTotalDistance();
-            }
+            // EXECUTION OF THE ALGORITHMS
+            // ***************************************************
             
-            System.out.println("Annealing total distance: " + aDistance);
+            double[] fitness_values = new double[31];
+            
+            double c_annealing = 0.9999;
+            double c_reannealing = 7.5;
+            
+            for(int it=0;it<31;it++){
+                // Run problem for annealing
+                /*for(Distances cluster: clusters){
+                    ProblemAnnealing pAnnealing = new ProblemAnnealing(cluster, capacity, minDemand);
+                    pAnnealing.run(100, 0.001, c_annealing);
+                    
+                    double cost = pAnnealing.getResult().getFitnessValue();
+                    
+                    //System.out.println("C-value: " + c_annealing);
+                    //System.out.println("Penalty: " + pAnnealing.getResult().getTotalPenalty());
+                    //System.out.println("Distance: " + cost);
+                    
+                    fitness_values[it] = cost;
+                }*/
 
-            // Run problem for re-annealing
-            double rDistance = 0;
-            for(Distances cluster: clusters){
-                ProblemReAnnealing pReAnnealing = new ProblemReAnnealing(cluster, capacity, minDemand);
-                pReAnnealing.run();
-                System.out.println("Penalty: " + pReAnnealing.getResult().getTotalPenalty());
-                rDistance += pReAnnealing.getResult().getTotalDistance();
+                // Run problem for re-annealing
+                for(Distances cluster: clusters){
+                    ProblemReAnnealing pReAnnealing = new ProblemReAnnealing(cluster, capacity, minDemand);
+                    pReAnnealing.run(100, 0.001, c_reannealing);
+                    
+                    double cost = pReAnnealing.getResult().getTotalDistance();
+
+                    //System.out.println("C-value: " + c_reannealing);
+                    //System.out.println("Penalty: " + pReAnnealing.getResult().getTotalPenalty());
+                    //System.out.println("Distance: " + rDistance);
+                    
+                    fitness_values[it] = cost;
+                }
             }
             
-            System.out.println("Reannealing total distance: " + rDistance);
+            System.out.println("Cost values:");
+            for(int ii=0;ii<31;ii++){
+                System.out.print(fitness_values[ii] + ",");
+            }
+            System.out.println("");
 	}
         
         /*

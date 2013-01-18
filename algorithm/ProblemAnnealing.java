@@ -15,9 +15,8 @@ import locations.*;
  * @author gaspercat
  */
 public class ProblemAnnealing extends Problem{
-    double p_coolingRate;
-    int    p_tIterations;
-        
+    double p_coolingRate; 
+    
     public ProblemAnnealing(Distances dists, double mCapacity, double minDemand){
         super(dists, mCapacity, minDemand);
         this.randGen = new Random();
@@ -29,7 +28,6 @@ public class ProblemAnnealing extends Problem{
     public void run(){
         this.p_absoluteTemperature = 0.001;
         this.p_coolingRate = 0.9999;
-        this.p_tIterations = 50;
         this.temperature = 100;
         
         runAlgorithm();
@@ -38,10 +36,9 @@ public class ProblemAnnealing extends Problem{
     /*
      * Run algorithm with custom parameters
      */
-    public void run(double temp, double absTemp, double coolRate, int tIter){
+    public void run(double temp, double absTemp, double coolRate){
         this.p_absoluteTemperature = absTemp;
         this.p_coolingRate = coolRate;
-        this.p_tIterations = tIter;
         this.temperature = temp;
         
         runAlgorithm();
@@ -71,14 +68,12 @@ public class ProblemAnnealing extends Problem{
             //}
             
             // Sample data when needed
-            if(iter % SAMPLING_INTERVAL == 0){
-                double fvalue = this.state.getFitnessValue();
-                this.fitness.add(new Double(fvalue));
-            }
+            double fvalue = this.state.getFitnessValue();
+            this.fitness.add(new Double(fvalue));
             iter++;
         }
         
-        System.out.println(iter);
+        this.n_iter = iter;
         return;
     }
     

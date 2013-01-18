@@ -19,13 +19,16 @@ public abstract class Problem {
     protected static final int DROPPOINTS_IN_TOUR_TO_BE_FULL = 2;
     
     protected Random randGen;
+    protected double minDemand;
     
     public class ProblemState{
+        double mCapacity;
         ArrayList<Tour> tours;
         Depot depot;
         Distances dists;
         
         public ProblemState(ProblemState state){
+            this.mCapacity = state.mCapacity;
             this.depot = state.depot;
             this.dists = state.dists;
             
@@ -35,16 +38,17 @@ public abstract class Problem {
             }
         }
         
-        public ProblemState(Distances dists, Depot depot){
+        public ProblemState(Distances dists, Depot depot, double mCapacity){
+            this.mCapacity = mCapacity;
             this.depot = depot;
             this.dists = dists;
             
             this.tours = new ArrayList<Tour>();
-            this.tours.add(new Tour(dists, depot));
+            this.tours.add(new Tour(dists, depot, mCapacity));
         }
         
         public Tour createEmptyTour() {
-            tours.add(new Tour(dists, depot));
+            tours.add(new Tour(dists, depot, this.mCapacity));
             return tours.get(tours.size()-1);
         }
         
@@ -62,9 +66,13 @@ public abstract class Problem {
                 locs.remove(loc);
                 
                 if(loc instanceof DropPoint){
-                    this.tours.get(0).addWaypoint(loc);
+                    this.tours.get(0).addWaypoint((DropPoint)loc);
                 }
             }
+        }
+        
+        public double getFitnessValue(){
+            return this.getTotalDistance() + this.getTotalPenalty();
         }
         
         public double getTotalDistance(){
@@ -75,6 +83,16 @@ public abstract class Problem {
             }
             
             return dist;
+        }
+        
+        public double getTotalPenalty(){
+            double penalty = 0;
+            
+            for(Tour tour: this.tours){
+                penalty += 2 * this.dists.getMaxDistance() * tour.getTotalPenalty() / minDemand;
+            }
+            
+            return penalty;
         }
         
         /*
@@ -124,6 +142,7 @@ public abstract class Problem {
         }
     }
     
+    protected double mCapacity;
     protected Depot depot;
     protected ArrayList<DropPoint> dropPoints;
     protected Distances dists;
@@ -135,8 +154,10 @@ public abstract class Problem {
     
     protected ArrayList<Double> fitness;
     
-    public Problem(Distances dists){
+    public Problem(Distances dists, double maxCapacity, double minDemand){
         this.randGen = new Random();
+        this.mCapacity = maxCapacity;
+        this.minDemand = minDemand;
         this.dists = dists;
         
         // Get depot & waypoints
@@ -189,7 +210,7 @@ public abstract class Problem {
     // ***************************************************************
     
     protected ProblemState initialState(){
-        ProblemState state = new ProblemState(this.dists, this.depot);
+        ProblemState state = new ProblemState(this.dists, this.depot, this.mCapacity);
         state.randomizeSolution();
         
         return state;
@@ -245,7 +266,7 @@ public abstract class Problem {
         if(tour == null) return null;
         
         // Remove a tour member and insert to a random position
-        Location memb = tour.delWaypoint();
+        DropPoint memb = tour.delWaypoint();
         int ins = randGen.nextInt(tour.getNumWaypoints() + 1);
         tour.addWaypoint(ins, memb);
         
@@ -262,7 +283,7 @@ public abstract class Problem {
         if(oTour == null) return null;
         
         // Select two random members of the tour and swap
-        Location memb = oTour.delWaypoint();
+        DropPoint memb = oTour.delWaypoint();
         dTour.addWaypoint(randGen.nextInt(dTour.getNumWaypoints() + 1), memb);
         
         return ret;
@@ -274,7 +295,7 @@ public abstract class Problem {
         Tour sourceTour = ret.getRandomTour(false, true);
         if (sourceTour == null) return null;
     	
-        Location memb = sourceTour.delWaypoint();
+        DropPoint memb = sourceTour.delWaypoint();
         newTour.addWaypoint(0, memb); // it will be the first one.
         return ret;
     }

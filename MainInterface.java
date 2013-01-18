@@ -16,6 +16,8 @@ public class MainInterface {
 
             // Parse drop points and depots
             parser.parseFile("inputData/eil22.vrp");
+            double capacity = parser.getTruckCapacity();
+            double minDemand = parser.getMinDemand();
             ArrayList<Depot> depots = parser.getDepotsList();
             ArrayList<DropPoint> dropPoints = parser.getDropPointsList();
 
@@ -25,9 +27,9 @@ public class MainInterface {
             // Run problem for annealing
             double aDistance = 0;
             for(Distances cluster: clusters){
-                ProblemAnnealing pAnnealing = new ProblemAnnealing(cluster);
+                ProblemAnnealing pAnnealing = new ProblemAnnealing(cluster, capacity, minDemand);
                 pAnnealing.run();
-                
+                System.out.println("Penalty: " + pAnnealing.getResult().getTotalPenalty());
                 aDistance += pAnnealing.getResult().getTotalDistance();
             }
             
@@ -36,9 +38,9 @@ public class MainInterface {
             // Run problem for re-annealing
             double rDistance = 0;
             for(Distances cluster: clusters){
-                ProblemReAnnealing pReAnnealing = new ProblemReAnnealing(cluster);
+                ProblemReAnnealing pReAnnealing = new ProblemReAnnealing(cluster, capacity, minDemand);
                 pReAnnealing.run();
-                
+                System.out.println("Penalty: " + pReAnnealing.getResult().getTotalPenalty());
                 rDistance += pReAnnealing.getResult().getTotalDistance();
             }
             

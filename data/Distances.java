@@ -13,12 +13,16 @@ import locations.Location;
  * @author gaspercat
  */
 public class Distances {
-    ArrayList<Location> locations;
-    ArrayList<ArrayList<Double>> distances;    
+    private ArrayList<Location> locations;
+    private ArrayList<ArrayList<Double>> distances;
+    private double mean_distance;
+    private double max_distance;
     
     public Distances(){
         this.locations = new ArrayList<Location>();
         this.distances = new ArrayList<ArrayList<Double>>();
+        this.mean_distance = 0;
+        this.max_distance = 0;
     }
     
     /**
@@ -45,6 +49,8 @@ public class Distances {
             
             this.distances.add(dists);
         }
+        
+        calculateMeanDistance();
     }
     
     public Distances(ArrayList<Location> locations, ArrayList<ArrayList<Double>> distances){
@@ -66,6 +72,14 @@ public class Distances {
         return this.distances.get(oInd).get(dInd).doubleValue();
     }
     
+    public double getMaxDistance(){
+        return this.max_distance;
+    }
+    
+    public double getMeanDistance(){
+        return this.mean_distance;
+    }
+    
     /*
      * Set the distance between two points (directed)
      * @param orig Defines the origin location
@@ -84,6 +98,7 @@ public class Distances {
         }
         
         distances.get(oInd).set(dInd, new Double(dist));
+        calculateMeanDistance();
     }
     
     private int addLocation(Location loc){
@@ -99,6 +114,26 @@ public class Distances {
         }
         this.distances.add(dists);
         
+        calculateMeanDistance();
         return this.locations.size() - 1;
+    }
+    
+    private void calculateMeanDistance(){
+        double distance = 0;
+        this.max_distance = 0;
+        
+        int nlocs = this.locations.size();
+        for(int i=0;i<nlocs;i++){
+            for(int j=0;j<nlocs;j++){
+                double tdistance = this.distances.get(i).get(j).doubleValue();
+                if(this.max_distance < tdistance){
+                    this.max_distance = tdistance;
+                }
+                
+                distance += tdistance;
+            }
+        }
+        
+        this.mean_distance = distance / (nlocs * nlocs);
     }
 }

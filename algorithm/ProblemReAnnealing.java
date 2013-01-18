@@ -20,8 +20,8 @@ public class ProblemReAnnealing extends Problem{
     
     double temperatureInitial;
     
-    public ProblemReAnnealing(Distances dists){
-        super(dists);
+    public ProblemReAnnealing(Distances dists, double mCapacity, double minDemand){
+        super(dists, mCapacity, minDemand);
         this.randGen = new Random();
         
         // Set size of the states space
@@ -74,7 +74,7 @@ public class ProblemReAnnealing extends Problem{
             
             // Sample data when needed
             if(iter % SAMPLING_INTERVAL == 0){
-                double fvalue = this.state.getTotalDistance();
+                double fvalue = this.state.getFitnessValue();
                 this.fitness.add(new Double(fvalue));
             }
             iter = iter + 1;
@@ -88,15 +88,15 @@ public class ProblemReAnnealing extends Problem{
     }
     
     private boolean isStateSelected(ProblemState state){
-        double dC = this.state.getTotalDistance();
-        double dN = state.getTotalDistance();
+        double dC = this.state.getFitnessValue();
+        double dN = state.getFitnessValue();
         
         // If new state better than current one, accept it
         if(dN <= dC){
             return true;
         }
         
-        if (dN < bestState.getTotalDistance())
+        if (dN < bestState.getFitnessValue())
         	bestState = state;
         
         // Calculate probability of acceptance

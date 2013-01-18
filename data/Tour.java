@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import locations.Location;
+import locations.DropPoint;
 
 /**
  *
@@ -18,43 +19,47 @@ public class Tour {
     
     Distances dists;
     Location depot;
-    ArrayList<Location> waypoints;
+    ArrayList<DropPoint> waypoints;
+    double mCapacity;
     
     public Tour(Tour tour){
         this.dists = tour.dists;
         this.depot = tour.depot;
-        this.waypoints = (ArrayList<Location>)tour.waypoints.clone();
+        this.waypoints = (ArrayList<DropPoint>)tour.waypoints.clone();
+        this.mCapacity = mCapacity;
     }
     
-    public Tour(Distances dists, Location depot){
+    public Tour(Distances dists, Location depot, double mCapacity){
         this.dists = dists;
         this.depot = depot;
-        this.waypoints = new ArrayList<Location>();
+        this.waypoints = new ArrayList<DropPoint>();
+        this.mCapacity = mCapacity;
     }
     
-    public Tour(Distances dists, Location depot, ArrayList<Location> waypoints){
+    public Tour(Distances dists, Location depot, ArrayList<DropPoint> waypoints, double mCapacity){
         this.dists = dists;
         this.depot = depot;
         this.waypoints = waypoints;
+        this.mCapacity = mCapacity;
     }
     
-    public void addWaypoint(Location location){
+    public void addWaypoint(DropPoint location){
         waypoints.add(location);
     }
     
-    public void addWaypoint(int pos, Location location){
+    public void addWaypoint(int pos, DropPoint location){
         if(pos < 0 || pos > waypoints.size()) return;
         waypoints.add(pos, location);
     }
     
-    public Location delWaypoint(){
+    public DropPoint delWaypoint(){
         int idx = randGen.nextInt(this.waypoints.size());
-        Location ret = this.waypoints.remove(idx);
+        DropPoint ret = this.waypoints.remove(idx);
         return ret;
     }
     
-    public Location delWaypoint(int idx){
-        Location ret = this.waypoints.remove(idx);
+    public DropPoint delWaypoint(int idx){
+        DropPoint ret = this.waypoints.remove(idx);
         return ret;
     }
     
@@ -74,13 +79,26 @@ public class Tour {
         return dist;
     }
     
+    public double getTotalPenalty(){
+        if(waypoints.size() == 0) return 0;
+        
+        // Calculate weight penalty
+        double dCapacity = 0;
+        for(DropPoint wp: (ArrayList<DropPoint>)waypoints){
+            dCapacity += wp.getCurrentDemand();
+        }
+        double wPenalty = (this.mCapacity < dCapacity) ? dCapacity - this.mCapacity : 0;
+        
+        return wPenalty;
+    }
+    
     public boolean isEmpty(){
         return this.waypoints.size() == 0;
     }
     
     public void swapWaypoints(int i1, int i2){
-        Location w1 = this.waypoints.get(i1);
-        Location w2 = this.waypoints.get(i2);
+        DropPoint w1 = this.waypoints.get(i1);
+        DropPoint w2 = this.waypoints.get(i2);
         
         this.waypoints.remove(i1);
         this.waypoints.add(i1, w2);

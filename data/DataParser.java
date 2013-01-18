@@ -22,6 +22,7 @@ public class DataParser {
 	private Phase currentPhase = Phase.PROPERTIES;
 	private ArrayList<DropPoint> dropPoints = new ArrayList<DropPoint>();
 	private ArrayList<Depot> depots = new ArrayList<Depot>();
+        private int minDemand = -1;
 	
 	public DataParser() {
 		
@@ -31,6 +32,13 @@ public class DataParser {
 		for (String line : readFile(fileName)) {
 			parseLine(line);
 		}
+                
+                // Get minimum demand
+                for(DropPoint dp: dropPoints){
+                    if(this.minDemand == -1 || this.minDemand > dp.getCurrentDemand()){
+                        this.minDemand = dp.getCurrentDemand();
+                    }
+                }
 	}
 	
 	public ArrayList<DropPoint> getDropPointsList() {
@@ -44,6 +52,10 @@ public class DataParser {
 	public int getTruckCapacity() {
 		return truckCapacity;
 	}
+        
+        public int getMinDemand(){
+            return this.minDemand;
+        }
 	
 	private void parseLine(String line) {
 		line = line.toUpperCase().trim();
@@ -117,7 +129,6 @@ public class DataParser {
 			int nodeNumber = Integer.parseInt(line.split(" ")[0].trim());
 			int demand = Integer.parseInt(line.split(" ")[1].trim());
 			dropPoints.get(nodeNumber-1).setDemandAmount(demand);
-			
 			return;
 		}
 		

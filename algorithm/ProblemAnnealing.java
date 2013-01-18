@@ -18,8 +18,8 @@ public class ProblemAnnealing extends Problem{
     double p_coolingRate;
     int    p_tIterations;
         
-    public ProblemAnnealing(Distances dists){
-        super(dists);
+    public ProblemAnnealing(Distances dists, double mCapacity, double minDemand){
+        super(dists, mCapacity, minDemand);
         this.randGen = new Random();
     }
     
@@ -58,7 +58,7 @@ public class ProblemAnnealing extends Problem{
             // Make t iterations at this temperature
             boolean selected = false;
             //while(!selected){
-            for(int i=0;i<this.p_tIterations;i++){
+            //for(int i=0;i<this.p_tIterations;i++){
                 // Select next state
                 ProblemState next = nextState();
                 if(isStateSelected(next)){
@@ -68,11 +68,11 @@ public class ProblemAnnealing extends Problem{
 
                 // Lower temperature
                 this.temperature *= p_coolingRate;
-            }
+            //}
             
             // Sample data when needed
             if(iter % SAMPLING_INTERVAL == 0){
-                double fvalue = this.state.getTotalDistance();
+                double fvalue = this.state.getFitnessValue();
                 this.fitness.add(new Double(fvalue));
             }
             iter++;
@@ -83,10 +83,10 @@ public class ProblemAnnealing extends Problem{
     }
     
     protected boolean isStateSelected(Problem.ProblemState state){
-        double dC = this.state.getTotalDistance();
-        double dN = state.getTotalDistance();
+        double dC = this.state.getFitnessValue();
+        double dN = state.getFitnessValue();
         
-        if (dN < bestState.getTotalDistance())
+        if (dN < bestState.getFitnessValue())
         	bestState = state;
         
         // If new state better than current one, accept it

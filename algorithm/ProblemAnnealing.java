@@ -78,6 +78,7 @@ public class ProblemAnnealing extends Problem{
             iter++;
         }
         
+        System.out.println(iter);
         return;
     }
     

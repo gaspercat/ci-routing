@@ -32,8 +32,8 @@ public class ProblemReAnnealing extends Problem{
      * Run algorithm with defaut parameters
      */
     public void run(){
-        this.p_absoluteTemperature = 0.005;
-        this.p_temperatureFactor = 5.8;
+        this.p_absoluteTemperature = 0.001;
+        this.p_temperatureFactor = 7.5;
         
         // Set original and current temperature
         this.temperatureInitial = 100;
@@ -65,7 +65,7 @@ public class ProblemReAnnealing extends Problem{
         // While temperature higher than absolute temperature
         this.temperature = getCurrentTemperature(0);
         while(this.temperature > this.p_absoluteTemperature){
-//        while(!stopCriterionMet()){
+        //while(!stopCriterionMet()){
             // Select next state
             Problem.ProblemState next = nextState();
             if(isStateSelected(next)){
@@ -83,6 +83,7 @@ public class ProblemReAnnealing extends Problem{
             this.temperature = getCurrentTemperature(iter);
         }
         
+        System.out.println(iter);
         return;
     }
     
@@ -104,16 +105,20 @@ public class ProblemReAnnealing extends Problem{
 
         double t = this.temperature;
         
-        double p = 1;
-        for(int i=0;i<this.p_stateSpaceSize;i++){
+        // OPTION 1
+        //double p = 1;
+        //for(int i=0;i<this.p_stateSpaceSize;i++){
             // Calculate uniform distribution u = [0,1], new y value & prob. for dimension
-            double u = randGen.nextDouble();
-            double y = Math.signum(u-0.5) * t * (Math.pow(1+1/t, 2*u-1) - 1);
-            double tp = 1 / ((2*Math.abs(y) + t) * Math.log(1 + 1/t));
+            //double u = randGen.nextDouble();
+            //double y = Math.signum(u-0.5) * t * (Math.pow(1+1/t, 2*u-1) - 1);
+            //double tp = 1 / ((2*Math.abs(y) + t) * Math.log(1 + 1/t));
         
             // Accumulate to final probability
-            p = p * tp;
-        }
+            //p = p * tp;
+        //}
+        
+        // OPTION 2
+        double p = 1 / ((2*(Math.abs(dN-dC) + t)) * Math.log(1 + 1/t));
         
         return this.randGen.nextDouble() <= p;
     }

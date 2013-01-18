@@ -32,13 +32,8 @@ public class ProblemReAnnealing extends Problem{
      * Run algorithm with defaut parameters
      */
     public void run(){
-<<<<<<< HEAD
         this.p_absoluteTemperature = 0.001;
         this.p_temperatureFactor = 7.5;
-=======
-        this.p_absoluteTemperature = 0.005;
-        this.p_temperatureFactor = 4.8;
->>>>>>> Some tuning
         
         // Set original and current temperature
         this.temperatureInitial = 100;

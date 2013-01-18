@@ -121,6 +121,7 @@ public abstract class Problem {
     
     protected int maxTours;
     protected ProblemState state;
+    protected ProblemState bestState;	//Current best state.
     
     protected ArrayList<Double> fitness;
     
@@ -142,6 +143,7 @@ public abstract class Problem {
         // Set max tours and initialize state
         this.maxTours = maxTours;
         this.state = initialState();
+        this.bestState = initialState();
     }
     
     /*
@@ -149,7 +151,7 @@ public abstract class Problem {
      * @return Result of the execution
      */
     public ProblemState getResult(){
-        return this.state;
+        return this.bestState;
     }
     
     /*

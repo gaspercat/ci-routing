@@ -88,6 +88,9 @@ public class ProblemAnnealing extends Problem{
         double dC = this.state.getTotalDistance();
         double dN = state.getTotalDistance();
         
+        if (dN < bestState.getTotalDistance())
+        	bestState = state;
+        
         // If new state better than current one, accept it
         if(dN <= dC){
             return true;

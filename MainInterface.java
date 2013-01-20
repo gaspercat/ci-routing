@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 
 import locations.Location;
 import locations.Depot;
@@ -11,63 +13,281 @@ import algorithm.ProblemAnnealing;
 import algorithm.ProblemReAnnealing;
 
 public class MainInterface {
+        static double capacity;
+        static double minDemand;
+    
+        static ArrayList<Depot> depots;
+        static ArrayList<DropPoint> dropPoints;
+        static ArrayList<Distances> clusters;
+        
 	public static void main(String[] args) {
-            DataParser parser = new DataParser();
-
-            // Parse drop points and depots
-            parser.parseFile("inputData/eil33.vrp");
-            double capacity = parser.getTruckCapacity();
-            double minDemand = parser.getMinDemand();
-            ArrayList<Depot> depots = parser.getDepotsList();
-            ArrayList<DropPoint> dropPoints = parser.getDropPointsList();
-
-            // Cluster locations by proximity
-            ArrayList<Distances> clusters = clusterLocations(depots, dropPoints);
-
-            // EXECUTION OF THE ALGORITHMS
-            // ***************************************************
+            // Calculate error surfaces 
+            loadResource("inputData/eil33_select.vrp");
+            double[] ct_annealing   = calculateErrorSurfaceAnnealing();
+            double[] ct_reannealing = calculateErrorSurfaceReAnnealing();
+            calculateHistoricalMeanValues(ct_annealing[0], ct_annealing[1], ct_reannealing[0], ct_reannealing[1]);
+	}
+        
+        private static double[] calculateErrorSurfaceAnnealing(){
+            // Prepare output file
+            FileWriter outFile;
+            try{
+                outFile = new FileWriter("surf_anneal.txt");
+            }catch(Exception e){
+                System.out.println("ERROR! Couldn't open surf_anneal.txt");
+                return new double[]{-1,-1};
+            }
+            PrintWriter out = new PrintWriter(outFile);
             
-            double[] fitness_values = new double[31];
+            double[] c = new double[]{0.99, 0.999, 0.9999, 0.99999};
+            double[] t = new double[]{0.1, 1, 10, 100, 1000};
+            double[][] surf = new double[c.length][t.length];
             
-            double c_annealing = 0.9999;
-            double c_reannealing = 7.5;
+            double best_error = -1;
+            double best_c = 0;
+            double best_t = 0;
             
-            for(int it=0;it<31;it++){
+            out.println();
+            out.println("Error surface for Annealing:");
+            
+            for(int ci=0;ci<c.length;ci++){
+                for(int ti=0;ti<t.length;ti++){
+                    surf[ci][ti] = 0;
+                    
+                    for(int i=0;i<31;i++){
+                        for(Distances cluster: clusters){
+                            ProblemAnnealing pAnnealing = new ProblemAnnealing(cluster, capacity, minDemand);
+                            pAnnealing.run(t[ti], 0.001, c[ci]);
+                            surf[ci][ti] += pAnnealing.getResult().getFitnessValue();
+                        }
+                    }
+                    
+                    surf[ci][ti] /= 31;
+                    out.print(surf[ci][ti]+((ti<t.length-1) ? "," : ""));
+                    
+                    if(best_error < 0 || best_error > surf[ci][ti]){
+                        best_error = surf[ci][ti];
+                        best_c = c[ci];
+                        best_t = t[ti];
+                    }
+                }
+                
+                if(ci<c.length-1){
+                    out.println(';');
+                }
+            }
+            
+            out.close();
+            return new double[]{best_c, best_t};
+        }
+        
+        private static double[] calculateErrorSurfaceReAnnealing(){
+            // Prepare output file
+            FileWriter outFile;
+            try{
+                outFile = new FileWriter("surf_reanneal.txt");
+            }catch(Exception e){
+                System.out.println("ERROR! Couldn't open surf_reanneal.txt");
+                return new double[]{-1,-1};
+            }
+            PrintWriter out = new PrintWriter(outFile);
+            
+            double[] c = new double[]{7.5, 7.75, 8, 8.25, 8.5, 8.75, 9, 9.25, 9.75, 10};
+            double[] t = new double[]{10, 100, 1000, 10000, 100000};
+            double[][] surf = new double[c.length][t.length];
+            
+            double best_error = -1;
+            double best_c = 0;
+            double best_t = 0;
+            
+            out.println();
+            out.println("Error surface for Re-Annealing:");
+            
+            for(int ci=0;ci<c.length;ci++){
+                for(int ti=0;ti<t.length;ti++){
+                    surf[ci][ti] = 0;
+                    
+                    for(int i=0;i<31;i++){
+                        for(Distances cluster: clusters){
+                            ProblemReAnnealing pReAnnealing = new ProblemReAnnealing(cluster, capacity, minDemand);
+                            pReAnnealing.run(t[ti], 0.001, c[ci]);
+                            surf[ci][ti] += pReAnnealing.getResult().getFitnessValue();
+                        }
+                    }
+                    
+                    surf[ci][ti] /= 31;
+                    out.print(surf[ci][ti]+((ti<t.length-1) ? "," : ""));
+                    
+                    if(best_error < 0 || best_error > surf[ci][ti]){
+                        best_error = surf[ci][ti];
+                        best_c = c[ci];
+                        best_t = t[ti];
+                    }
+                }
+                
+                if(ci<c.length-1){
+                    out.println(';');
+                }
+            }
+            
+            out.close();
+            return new double[]{best_c, best_t};
+        }
+        
+        private static void calculateHistoricalMeanValues(double sa_c, double sa_t, double ra_c, double ra_t){
+            FileWriter outFile;
+            PrintWriter out;
+            
+            int nvals = 100000;
+            int nruns = 500;
+            int lastIteration = 100000;
+            
+            double[] historic_reannealing = new double[nvals];
+            double[] historic_annealing = new double[nvals];
+            
+            double[][] historic_ci_annealing = new double[nruns][nvals];
+            double[][] historic_ci_reannealing = new double[nruns][nvals];
+            
+            for(int i=0;i<nvals;i++){
+                historic_reannealing[i] = 0;
+                historic_annealing[i] = 0;
+            }
+            
+            for(int it=0;it<nruns;it++){
                 // Run problem for annealing
-                /*for(Distances cluster: clusters){
+                for(Distances cluster: clusters){
+                    
                     ProblemAnnealing pAnnealing = new ProblemAnnealing(cluster, capacity, minDemand);
-                    pAnnealing.run(100, 0.001, c_annealing);
+                    pAnnealing.run(sa_t, 0.001, sa_c);
                     
-                    double cost = pAnnealing.getResult().getFitnessValue();
+                    // Computation of historical menan values
+                    // ********************************************
                     
-                    //System.out.println("C-value: " + c_annealing);
-                    //System.out.println("Penalty: " + pAnnealing.getResult().getTotalPenalty());
-                    //System.out.println("Distance: " + cost);
-                    
-                    fitness_values[it] = cost;
-                }*/
+                    ArrayList<Double> sampled = pAnnealing.sampleHistoricFitness(nvals, lastIteration);
+                    for(int i=0;i<sampled.size();i++){
+                        historic_annealing[i] += sampled.get(i).doubleValue();
+                        historic_ci_annealing[it][i] = sampled.get(i).doubleValue();
+                    }
+                }
 
                 // Run problem for re-annealing
                 for(Distances cluster: clusters){
                     ProblemReAnnealing pReAnnealing = new ProblemReAnnealing(cluster, capacity, minDemand);
-                    pReAnnealing.run(100, 0.001, c_reannealing);
+                    pReAnnealing.run(ra_t, 0.001, ra_c);
                     
-                    double cost = pReAnnealing.getResult().getTotalDistance();
-
-                    //System.out.println("C-value: " + c_reannealing);
-                    //System.out.println("Penalty: " + pReAnnealing.getResult().getTotalPenalty());
-                    //System.out.println("Distance: " + rDistance);
+                    // Computation of historical menan values & CI
+                    // ********************************************
                     
-                    fitness_values[it] = cost;
+                    ArrayList<Double> sampled = pReAnnealing.sampleHistoricFitness(nvals, lastIteration);
+                    for(int i=0;i<sampled.size();i++){
+                        historic_reannealing[i] += sampled.get(i).doubleValue();
+                        historic_ci_reannealing[it][i] = sampled.get(i).doubleValue();
+                    }
                 }
             }
             
-            System.out.println("Cost values:");
-            for(int ii=0;ii<31;ii++){
-                System.out.print(fitness_values[ii] + ",");
+            // Printing of historical menan values, annealing
+            // ********************************************
+            
+            try{
+                outFile = new FileWriter("means_anneal.txt");
+                out = new PrintWriter(outFile);
+                
+                out.println("ANNEALING: " + nvals + "-sample mean progress");
+                for(int i=0;i<nvals;i++){
+                    out.println((historic_annealing[i] / nruns)+"");
+                }
+
+                out.close();
+            }catch(Exception e){
+                System.out.println("ERROR! Couldn't open means_anneal.txt");
             }
-            System.out.println("");
-	}
+            
+            // Printing of historical menan values, re-annealing
+            // ********************************************
+            
+            try{
+                outFile = new FileWriter("means_reanneal.txt");
+                out = new PrintWriter(outFile);
+                
+                out.println("RE-ANNEALING: " + nvals + "-sample mean progress");
+                for(int i=0;i<nvals;i++){
+                    out.println((historic_reannealing[i] / nruns)+"");
+                }
+
+                out.close();
+            }catch(Exception e){
+                System.out.println("ERROR! Couldn't open means_reanneal.txt");
+            }
+            
+            // Computation of CI for the historical values
+            // ********************************************
+            
+            double fhistoric_ci_reannealing[] = new double[nvals];
+            double fhistoric_ci_annealing[] = new double[nvals];
+            for(int i=0;i<nvals;i++){
+                // Get mean value
+                double mean_reannealing = 0;
+                double mean_annealing = 0;
+                for(int j=0;j<nruns;j++){
+                    mean_reannealing += historic_ci_reannealing[j][i];
+                    mean_annealing += historic_ci_annealing[j][i];
+                }
+                mean_reannealing /= nruns;
+                mean_annealing /= nruns;
+                
+                // Calculate stdev
+                double stdev_reannealing = 0;
+                double stdev_annealing = 0;
+                for(int j=0;j<nruns;j++){
+                    double val1 = historic_ci_reannealing[j][i] - mean_reannealing;
+                    stdev_reannealing += Math.pow(historic_ci_reannealing[j][i] - mean_reannealing, 2);
+                    stdev_annealing += Math.pow(historic_ci_annealing[j][i] - mean_annealing, 2);
+                }
+                stdev_reannealing = Math.sqrt(stdev_reannealing / (nruns - 1));
+                stdev_annealing = Math.sqrt(stdev_annealing / (nruns - 1));
+                
+                // Calculate CI
+                fhistoric_ci_reannealing[i] = 1.96 * stdev_reannealing / Math.sqrt(nruns);
+                fhistoric_ci_annealing[i] = 1.96 * stdev_annealing / Math.sqrt(nruns);
+            }
+            
+            // Printing of CI for the historical values, annealing
+            // ********************************************
+            
+            try{
+                outFile = new FileWriter("ci_anneal.txt");
+                out = new PrintWriter(outFile);
+
+                out.println("ANNEALING: " + nvals + "-sample 95% CI variation progress");
+                for(int i=0;i<nvals;i++){
+                    out.println(fhistoric_ci_annealing[i]+"");
+                }
+                out.println("");
+
+                out.close();
+            }catch(Exception e){
+                System.out.println("ERROR! Couldn't open ci_anneal.txt");
+            }
+            
+            // Printing of CI for the historical values, re-annealing
+            // ********************************************
+            
+            try{
+                outFile = new FileWriter("ci_reanneal.txt");
+                out = new PrintWriter(outFile);
+
+                out.println("RE-ANNEALING: " + nvals + "-sample 95% CI variation progress");
+                for(int i=0;i<nvals;i++){
+                    out.println(fhistoric_ci_reannealing[i]+"");
+                }
+                out.println("");
+
+                out.close();
+            }catch(Exception e){
+                System.out.println("ERROR! Couldn't open ci_reanneal.txt");
+            }
+        }
         
         /*
          * Cluster drop points and depots according to proximity and create the
@@ -112,5 +332,20 @@ public class MainInterface {
             
             // Return distances matrix of each cluster
             return dists;
+        }
+        
+        private static void loadResource(String resource){
+            // Parse drop points and depots for parametes estimation set
+            DataParser parser = new DataParser();
+            parser.parseFile(resource);
+            
+            // Save parsed values
+            capacity = parser.getTruckCapacity();
+            minDemand = parser.getMinDemand();
+            depots = parser.getDepotsList();
+            dropPoints = parser.getDropPointsList();
+
+            // Cluster locations by proximity
+            clusters = clusterLocations(depots, dropPoints);
         }
 }

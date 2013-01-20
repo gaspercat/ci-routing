@@ -51,7 +51,7 @@ public class ProblemAnnealing extends Problem{
         int iter = 0;
         
         // While temperature higher than absolute temperature
-        while(this.temperature > this.p_absoluteTemperature){
+        while(this.temperature > this.p_absoluteTemperature && iter < 1000000){
             // Make t iterations at this temperature
             boolean selected = false;
             //while(!selected){

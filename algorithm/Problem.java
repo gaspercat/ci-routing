@@ -199,16 +199,27 @@ public abstract class Problem {
      * @param n Number of samples to take
      * @return n samples of the fitness
      */
-    public ArrayList<Double> sampleHistoricFitness(int n){
-        if(this.fitness == null ||this.fitness.size() < n){
+    public ArrayList<Double> sampleHistoricFitness(int n, int lastIteration){
+        if(this.fitness == null){
             return null;
+        }
+        
+        if(lastIteration > this.fitness.size()){
+            lastIteration = this.fitness.size();
+        }
+        
+        if(n > lastIteration){
+            n = lastIteration;
         }
         
         ArrayList<Double> ret = new ArrayList<Double>();
         
-        float freq = this.fitness.size() / n;
+        float freq = lastIteration / n;
         for(int i=1;i<=n;i++){
             int idx = Math.round(i*freq-1);
+            if(idx < 0){
+                return null;
+            }
             ret.add(this.fitness.get(idx));
         }
         

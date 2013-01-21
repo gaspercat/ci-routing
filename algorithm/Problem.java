@@ -103,6 +103,7 @@ public abstract class Problem {
          */
         public Tour getRandomTour(boolean beEmpty, boolean beFull){
             if(beEmpty && !hasEmptyTour()) return null;
+            if(beFull && !hasFullTour()) return null;
             Tour ret = null;
             
             while(ret == null){
@@ -141,6 +142,14 @@ public abstract class Problem {
         public boolean hasEmptyTour(){
             for(Tour t: this.tours){
                 if(t.isEmpty()) return true;
+            }
+            
+            return false;
+        }
+        
+        public boolean hasFullTour(){
+            for(Tour t: this.tours){
+                if(t.isFull()) return true;
             }
             
             return false;

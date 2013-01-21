@@ -96,6 +96,10 @@ public class Tour {
         return this.waypoints.size() == 0;
     }
     
+    public boolean isFull(){
+        return this.waypoints.size() > 1;
+    }
+    
     public void swapWaypoints(int i1, int i2){
         DropPoint w1 = this.waypoints.get(i1);
         DropPoint w2 = this.waypoints.get(i2);

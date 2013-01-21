@@ -65,13 +65,19 @@ public class ProblemReAnnealing extends Problem{
         
         // While temperature higher than absolute temperature
         this.temperature = getCurrentTemperature(0);
-        while(this.temperature > this.p_absoluteTemperature && iter < 1000000){
+        while(this.temperature > this.p_absoluteTemperature && iter < 100000){
         //while(!stopCriterionMet()){
             // Select next state
-            Problem.ProblemState next = nextState();
-            if(isStateSelected(next)){
-                this.state = next;
-            }
+            //for(int i=0;i<20;i++){
+                boolean selected = false;
+                while(!selected){
+                    Problem.ProblemState next = nextState();
+                    if(isStateSelected(next)){
+                        selected = true;
+                        this.state = next;
+                    }
+                }
+            //}
             
             // Sample data
             double fvalue = this.state.getFitnessValue();

@@ -25,7 +25,10 @@ public class MainInterface {
             loadResource("inputData/eil33_select.vrp");
             double[] ct_annealing   = calculateErrorSurfaceAnnealing();
             double[] ct_reannealing = calculateErrorSurfaceReAnnealing();
-            calculateHistoricalMeanValues(ct_annealing[0], ct_annealing[1], ct_reannealing[0], ct_reannealing[1]);
+            
+            // Calculate historical mean values
+            //loadResource("inputData/eil33_test.vrp");
+            //calculateHistoricalMeanValues(0.999, 10, 9, 100);
 	}
         
         private static double[] calculateErrorSurfaceAnnealing(){
@@ -93,7 +96,7 @@ public class MainInterface {
             PrintWriter out = new PrintWriter(outFile);
             
             double[] c = new double[]{7.5, 7.75, 8, 8.25, 8.5, 8.75, 9, 9.25, 9.75, 10};
-            double[] t = new double[]{10, 100, 1000, 10000, 100000};
+            double[] t = new double[]{1, 10, 100, 1000, 10000, 100000};
             double[][] surf = new double[c.length][t.length];
             
             double best_error = -1;
@@ -138,9 +141,9 @@ public class MainInterface {
             FileWriter outFile;
             PrintWriter out;
             
-            int nvals = 100000;
-            int nruns = 500;
-            int lastIteration = 100000;
+            int nvals = 500;
+            int nruns = 100;
+            int lastIteration = 500;
             
             double[] historic_reannealing = new double[nvals];
             double[] historic_annealing = new double[nvals];

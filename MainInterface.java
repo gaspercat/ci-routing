@@ -22,13 +22,13 @@ public class MainInterface {
         
 	public static void main(String[] args) {
             // Calculate error surfaces 
-            loadResource("inputData/eil33_select.vrp");
-            double[] ct_annealing   = calculateErrorSurfaceAnnealing();
-            double[] ct_reannealing = calculateErrorSurfaceReAnnealing();
+            //loadResource("inputData/eil33_select.vrp");
+            //double[] ct_annealing   = calculateErrorSurfaceAnnealing();
+            //double[] ct_reannealing = calculateErrorSurfaceReAnnealing();
             
             // Calculate historical mean values
-            //loadResource("inputData/eil33_test.vrp");
-            //calculateHistoricalMeanValues(0.999, 10, 9, 100);
+            loadResource("inputData/eil22.vrp");
+            calculateVectorOfResults(0.999, 100, 7.1, 100, 200);
 	}
         
         private static double[] calculateErrorSurfaceAnnealing(){
@@ -43,7 +43,7 @@ public class MainInterface {
             PrintWriter out = new PrintWriter(outFile);
             
             double[] c = new double[]{0.99, 0.999, 0.9999, 0.99999};
-            double[] t = new double[]{0.1, 1, 10, 100, 1000};
+            double[] t = new double[]{1, 10, 100, 1000};
             double[][] surf = new double[c.length][t.length];
             
             double best_error = -1;
@@ -137,21 +137,76 @@ public class MainInterface {
             return new double[]{best_c, best_t};
         }
         
-        private static void calculateHistoricalMeanValues(double sa_c, double sa_t, double ra_c, double ra_t){
+        private static void calculateVectorOfResults(double sa_c, double sa_t, double ra_c, double ra_t, int nvals){
             FileWriter outFile;
             PrintWriter out;
             
-            int nvals = 500;
-            int nruns = 100;
-            int lastIteration = 500;
+            double[] results_reannealing = new double[nvals];
+            double[] results_annealing = new double[nvals];
             
-            double[] historic_reannealing = new double[nvals];
-            double[] historic_annealing = new double[nvals];
+            for(int it=0;it<nvals;it++){
+                results_annealing[it] = 0;
+                for(Distances cluster: clusters){
+                    ProblemAnnealing pAnnealing = new ProblemAnnealing(cluster, capacity, minDemand);
+                    pAnnealing.run(sa_t, 0.001, sa_c);
+                    results_annealing[it] += pAnnealing.getResult().getFitnessValue();
+                }
+                
+                results_reannealing[it] = 0;
+                for(Distances cluster: clusters){
+                    ProblemReAnnealing pReAnnealing = new ProblemReAnnealing(cluster, capacity, minDemand);
+                    pReAnnealing.run(ra_t, 0.001, ra_c);
+                    results_reannealing[it] += pReAnnealing.getResult().getFitnessValue();
+                }
+            }
             
-            double[][] historic_ci_annealing = new double[nruns][nvals];
-            double[][] historic_ci_reannealing = new double[nruns][nvals];
+            try{
+                outFile = new FileWriter("results_anneal.txt");
+                out = new PrintWriter(outFile);
+                
+                out.println("ANNEALING: Multiple runs results");
+                for(int i=0;i<nvals;i++){
+                    out.print((results_annealing[i])+",");
+                }
+
+                out.close();
+            }catch(Exception e){
+                System.out.println("ERROR! Couldn't open results_anneal.txt");
+            }
             
-            for(int i=0;i<nvals;i++){
+            try{
+                outFile = new FileWriter("results_reanneal.txt");
+                out = new PrintWriter(outFile);
+                
+                out.println("RE-ANNEALING: Multiple runs results");
+                for(int i=0;i<nvals;i++){
+                    out.print((results_reannealing[i])+",");
+                }
+
+                out.close();
+            }catch(Exception e){
+                System.out.println("ERROR! Couldn't open results_reanneal.txt");
+            }
+        }
+        
+        /*
+         * Calculate the mean value for each instant of time of the algorithm,
+         * where the internal variable nvals defines the number of iterations to
+         * take into account.
+         */
+        private static void calculateHistoricalMeanValues(double sa_c, double sa_t, double ra_c, double ra_t, int nruns){
+            FileWriter outFile;
+            PrintWriter out;
+            
+            int niterations = 1000;
+            
+            double[] historic_reannealing = new double[niterations];
+            double[] historic_annealing = new double[niterations];
+            
+            double[][] historic_ci_annealing = new double[nruns][niterations];
+            double[][] historic_ci_reannealing = new double[nruns][niterations];
+            
+            for(int i=0;i<niterations;i++){
                 historic_reannealing[i] = 0;
                 historic_annealing[i] = 0;
             }
@@ -166,7 +221,7 @@ public class MainInterface {
                     // Computation of historical menan values
                     // ********************************************
                     
-                    ArrayList<Double> sampled = pAnnealing.sampleHistoricFitness(nvals, lastIteration);
+                    ArrayList<Double> sampled = pAnnealing.sampleHistoricFitness(niterations, niterations);
                     for(int i=0;i<sampled.size();i++){
                         historic_annealing[i] += sampled.get(i).doubleValue();
                         historic_ci_annealing[it][i] = sampled.get(i).doubleValue();
@@ -181,7 +236,7 @@ public class MainInterface {
                     // Computation of historical menan values & CI
                     // ********************************************
                     
-                    ArrayList<Double> sampled = pReAnnealing.sampleHistoricFitness(nvals, lastIteration);
+                    ArrayList<Double> sampled = pReAnnealing.sampleHistoricFitness(niterations, niterations);
                     for(int i=0;i<sampled.size();i++){
                         historic_reannealing[i] += sampled.get(i).doubleValue();
                         historic_ci_reannealing[it][i] = sampled.get(i).doubleValue();
@@ -196,8 +251,8 @@ public class MainInterface {
                 outFile = new FileWriter("means_anneal.txt");
                 out = new PrintWriter(outFile);
                 
-                out.println("ANNEALING: " + nvals + "-sample mean progress");
-                for(int i=0;i<nvals;i++){
+                out.println("ANNEALING: " + niterations + "-sample mean progress");
+                for(int i=0;i<niterations;i++){
                     out.println((historic_annealing[i] / nruns)+"");
                 }
 
@@ -213,8 +268,8 @@ public class MainInterface {
                 outFile = new FileWriter("means_reanneal.txt");
                 out = new PrintWriter(outFile);
                 
-                out.println("RE-ANNEALING: " + nvals + "-sample mean progress");
-                for(int i=0;i<nvals;i++){
+                out.println("RE-ANNEALING: " + niterations + "-sample mean progress");
+                for(int i=0;i<niterations;i++){
                     out.println((historic_reannealing[i] / nruns)+"");
                 }
 
@@ -226,9 +281,9 @@ public class MainInterface {
             // Computation of CI for the historical values
             // ********************************************
             
-            double fhistoric_ci_reannealing[] = new double[nvals];
-            double fhistoric_ci_annealing[] = new double[nvals];
-            for(int i=0;i<nvals;i++){
+            double fhistoric_ci_reannealing[] = new double[niterations];
+            double fhistoric_ci_annealing[] = new double[niterations];
+            for(int i=0;i<niterations;i++){
                 // Get mean value
                 double mean_reannealing = 0;
                 double mean_annealing = 0;
@@ -262,8 +317,8 @@ public class MainInterface {
                 outFile = new FileWriter("ci_anneal.txt");
                 out = new PrintWriter(outFile);
 
-                out.println("ANNEALING: " + nvals + "-sample 95% CI variation progress");
-                for(int i=0;i<nvals;i++){
+                out.println("ANNEALING: " + niterations + "-sample 95% CI variation progress");
+                for(int i=0;i<niterations;i++){
                     out.println(fhistoric_ci_annealing[i]+"");
                 }
                 out.println("");
@@ -280,8 +335,8 @@ public class MainInterface {
                 outFile = new FileWriter("ci_reanneal.txt");
                 out = new PrintWriter(outFile);
 
-                out.println("RE-ANNEALING: " + nvals + "-sample 95% CI variation progress");
-                for(int i=0;i<nvals;i++){
+                out.println("RE-ANNEALING: " + niterations + "-sample 95% CI variation progress");
+                for(int i=0;i<niterations;i++){
                     out.println(fhistoric_ci_reannealing[i]+"");
                 }
                 out.println("");

@@ -65,7 +65,7 @@ public class ProblemReAnnealing extends Problem{
         
         // While temperature higher than absolute temperature
         this.temperature = getCurrentTemperature(0);
-        while(this.temperature > this.p_absoluteTemperature && iter < 100000){
+        while(this.temperature > this.p_absoluteTemperature && iter < 1000000){
         //while(!stopCriterionMet()){
             // Select next state
             //for(int i=0;i<20;i++){

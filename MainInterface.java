@@ -27,8 +27,8 @@ public class MainInterface {
             //double[] ct_reannealing = calculateErrorSurfaceReAnnealing();
             
             // Calculate historical mean values
-            loadResource("inputData/eil22.vrp");
-            calculateVectorOfResults(0.999, 100, 7.1, 100, 200);
+            loadResource("inputData/eilA76.vrp");
+            calculateVectorOfResults(0.988, 100, 8.4, 100, 200);
 	}
         
         private static double[] calculateErrorSurfaceAnnealing(){

@@ -51,9 +51,10 @@ public class ProblemAnnealing extends Problem{
         int iter = 0;
         
         // While temperature higher than absolute temperature
-        while(this.temperature > this.p_absoluteTemperature && iter < 1000000){
+        while(this.temperature > this.p_absoluteTemperature && iter < 100000){
             // Make t iterations at this temperature
             //for(int i=0;i<20;i++){
+                int count = 0;
                 boolean selected = false;
                 while(!selected){
                     // Select next state
@@ -62,6 +63,9 @@ public class ProblemAnnealing extends Problem{
                         selected = true;
                         this.state = next;
                     }
+                    
+                    count++;
+                    if(count == 10) break;
                 }
             //}
             
